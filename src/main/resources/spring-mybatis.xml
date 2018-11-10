@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="url" value="jdbc:oracle:thin:@192.168.66.166:1521:orcl" />
+        <property name="username" value="ssm42" />
+        <property name="password" value="ssm42" />
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+    </bean>
+
+    <!--SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource" />
+        <!--配置分页插件-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <!--方言 使用oracle数据库 默认mysql-->
+                            <prop key="helperDialect">oracle</prop>
+                            <!--合理分页参数设置
+                            pageNum<=0 时会查询第一页， pageNum>pages（超过总数时），会查询最后一页。-->
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <!--接口扫描 MapperScannerConfigurer-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定Dao接口的包-->
+        <property name="basePackage" value="com.itheima.dao" />
+        <!--
+            指定SqlSessionFactoryBeanName
+            在多数据源情况下，需要指定
+        -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
+    </bean>
+</beans>
